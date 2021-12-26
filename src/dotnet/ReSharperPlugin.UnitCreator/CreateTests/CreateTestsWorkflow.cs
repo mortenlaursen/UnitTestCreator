@@ -29,51 +29,51 @@ namespace ReSharperPlugin.UnitCreator.CreateTests
         public CreateTestsWorkflow([NotNull] ISolution solution, [CanBeNull] string actionId = null)
             : base(solution, actionId)
         {
-            // pathsService = new DefaultPathsService();
+            pathsService = solution.GetComponent<IPathsService>();
         }
 
         public CreateTestsDataModel Model { get; private set; }
 
         public override bool Initialize(IDataContext context)
         {
-            // var (declaration, declaredElement) = IsAvailableCore(context);
-            // // Assertion.Assert(declaration != null, "declaration != null");
-            // // Assertion.Assert(declaredElement != null, "declaredElement != null");
-            //
-            // var sourceFile = declaration.GetContainingFile()?.GetSourceFile()?.ToProjectFile();
-            // // Assertion.Assert(sourceFile != null, "sourceFile != null");
-            //
-            // var project = context.GetData(ProjectModelDataConstants.PROJECT);
-            // // Assertion.Assert(project != null, "PROJECT != null");
-            //
-            // var testProject = Solution.GetProjectByName($"{project.Name}.Tests");
-            // // Assertion.Assert(testProject != null, "defaultTestProject != null");
-            //
-            // var projectName = project.Location.Name;
-            // var projectFileImpl = (ProjectFileImpl)context.GetData(ProjectModelDataConstants.PROJECT_MODEL_ELEMENT);
-            // // Assertion.Assert(projectFileImpl != null, "projectFileImpl != null");
-            //
-            // Model = new CreateTestsDataModel
-            // {
-            //     Declaration = declaration,
-            //     SourceFile = sourceFile,
-            //     DefaultTargetProject = testProject,
-            //     SourceProject = projectFileImpl,
-            //     IncludeTestSetup = true,
-            // };
-            //
-            // var testProjectTarget = Solution.GetProjectsByName($"{projectName}.Tests");
-            // // Assertion.Assert(testProjectTarget != null, "testProjectTarget != null");
-            //
-            // var targetProjectFullPath = Path.GetDirectoryName(projectFileImpl.Location.FullPath);
-            // // Assertion.Assert(targetProjectFullPath != null, "targetProjectFullPath != null");
-            //
-            // Model.TargetFilePath = Path.Combine(
-            //     targetProjectFullPath.Substring(
-            //         targetProjectFullPath.LastIndexOf(projectName, StringComparison.Ordinal) + projectName.Length + 1),
-            //     $"{declaredElement.ShortName}Tests.cs");
-            //
-            // Model.TargetProject = testProjectTarget.First();
+            var (declaration, declaredElement) = IsAvailableCore(context);
+            Assertion.Assert(declaration != null, "declaration != null");
+            Assertion.Assert(declaredElement != null, "declaredElement != null");
+            
+            var sourceFile = declaration.GetContainingFile()?.GetSourceFile()?.ToProjectFile();
+            Assertion.Assert(sourceFile != null, "sourceFile != null");
+            
+            var project = context.GetData(ProjectModelDataConstants.PROJECT);
+            Assertion.Assert(project != null, "PROJECT != null");
+            
+            var testProject = Solution.GetProjectByName($"{project.Name}.Tests");
+            Assertion.Assert(testProject != null, "defaultTestProject != null");
+            
+            var projectName = project.Location.Name;
+            var projectFileImpl = (ProjectFileImpl)context.GetData(ProjectModelDataConstants.PROJECT_MODEL_ELEMENT);
+            // Assertion.Assert(projectFileImpl != null, "projectFileImpl != null");
+            
+            Model = new CreateTestsDataModel
+            {
+                Declaration = declaration,
+                SourceFile = sourceFile,
+                DefaultTargetProject = testProject,
+                SourceProject = projectFileImpl,
+                IncludeTestSetup = true,
+            };
+            
+            var testProjectTarget = Solution.GetProjectsByName($"{projectName}.Tests");
+            // Assertion.Assert(testProjectTarget != null, "testProjectTarget != null");
+            
+            var targetProjectFullPath = Path.GetDirectoryName(projectFileImpl.Location.FullPath);
+            // Assertion.Assert(targetProjectFullPath != null, "targetProjectFullPath != null");
+            
+            Model.TargetFilePath = Path.Combine(
+                targetProjectFullPath.Substring(
+                    targetProjectFullPath.LastIndexOf(projectName, StringComparison.Ordinal) + projectName.Length + 1),
+                $"{declaredElement.ShortName}Tests.cs");
+            
+            Model.TargetProject = testProjectTarget.First();
             return true;
         }
 

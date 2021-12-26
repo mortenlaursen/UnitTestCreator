@@ -39,10 +39,10 @@ namespace ReSharperPlugin.UnitCreator
             {
                 using (var lifetimeDefinition = Lifetime.Define(Lifetime.Eternal))
                 {
-                    // RefactoringActionUtil.ExecuteRefactoring(
-                    //     solution
-                    //         .GetComponent<IActionManager>().DataContexts
-                    //         .CreateOnActiveControl(lifetimeDefinition.Lifetime), new CreateTestsWorkflow(solution));
+                    RefactoringActionUtil.ExecuteRefactoring(
+                        solution
+                            .GetComponent<IActionManager>().DataContexts
+                            .CreateOnActiveControl(lifetimeDefinition.Lifetime), new CreateTestsWorkflow(solution));
                 }
             };
         }
