@@ -39,20 +39,20 @@ namespace ReSharperPlugin.UnitCreator.CreateTests
             var (declaration, declaredElement) = IsAvailableCore(context);
             Assertion.Assert(declaration != null, "declaration != null");
             Assertion.Assert(declaredElement != null, "declaredElement != null");
-            
+
             var sourceFile = declaration.GetContainingFile()?.GetSourceFile()?.ToProjectFile();
             Assertion.Assert(sourceFile != null, "sourceFile != null");
-            
+
             var project = context.GetData(ProjectModelDataConstants.PROJECT);
             Assertion.Assert(project != null, "PROJECT != null");
-            
+
             var testProject = Solution.GetProjectByName($"{project.Name}.Tests");
             Assertion.Assert(testProject != null, "defaultTestProject != null");
-            
+
             var projectName = project.Location.Name;
             var projectFileImpl = (ProjectFileImpl)context.GetData(ProjectModelDataConstants.PROJECT_MODEL_ELEMENT);
-            // Assertion.Assert(projectFileImpl != null, "projectFileImpl != null");
-            
+            Assertion.Assert(projectFileImpl != null, "projectFileImpl != null");
+
             Model = new CreateTestsDataModel
             {
                 Declaration = declaration,
@@ -61,18 +61,18 @@ namespace ReSharperPlugin.UnitCreator.CreateTests
                 SourceProject = projectFileImpl,
                 IncludeTestSetup = true,
             };
-            
+
             var testProjectTarget = Solution.GetProjectsByName($"{projectName}.Tests");
-            // Assertion.Assert(testProjectTarget != null, "testProjectTarget != null");
-            
+            Assertion.Assert(testProjectTarget != null, "testProjectTarget != null");
+
             var targetProjectFullPath = Path.GetDirectoryName(projectFileImpl.Location.FullPath);
-            // Assertion.Assert(targetProjectFullPath != null, "targetProjectFullPath != null");
-            
+            Assertion.Assert(targetProjectFullPath != null, "targetProjectFullPath != null");
+
             Model.TargetFilePath = Path.Combine(
                 targetProjectFullPath.Substring(
                     targetProjectFullPath.LastIndexOf(projectName, StringComparison.Ordinal) + projectName.Length + 1),
                 $"{declaredElement.ShortName}Tests.cs");
-            
+
             Model.TargetProject = testProjectTarget.First();
             return true;
         }
@@ -159,31 +159,7 @@ namespace ReSharperPlugin.UnitCreator.CreateTests
 
         private void GenerateCodeAndFile(IProjectModelTransactionCookie transactionCookie)
         {
-            if (Solution.GetComponent<IPsiTransactions>().Execute("Create Tests", () =>
-                {
-                    var primaryPsiFile = (ICSharpFile)Model.TestClassFile.GetPrimaryPsiFile().NotNull();
-                    var className = pathsService.GetExpectedClassName(Model.TargetFilePath);
-
-                    var targetProject = Model.TestClassFile.GetProject().NotNull();
-                    var sourceProject = Model.SourceFile.GetProject().NotNull();
-
-                    var psiFileBuilder = new PsiFileBuilder(primaryPsiFile);
-
-                    if (Model.IncludeTestSetup)
-                    {
-                        psiFileBuilder
-                            .AddUsingDirective("Atc.Test")
-                            .AddUsingDirective("FluentAssertions")
-                            .AddUsingDirective("Xunit");
-                    }
-
-                    psiFileBuilder
-                        .AddExpectedNamespace()
-                        .AddClass(className, AccessRights.PUBLIC)
-                        .WithMembers();
-
-                    // transactionCookie.AddProjectReference(targetProject, sourceProject);
-                }).Succeded)
+            if (ExecuteTransaction(transactionCookie).Succeded)
                 transactionCookie.Commit(NullProgressIndicator.Create());
             else
             {
@@ -191,30 +167,41 @@ namespace ReSharperPlugin.UnitCreator.CreateTests
             }
         }
 
-        public override void SuccessfulFinish(IProgressIndicator pi)
+        private TransactionResult ExecuteTransaction(IProjectModelTransactionCookie transactionCookie)
         {
-            if (Model.TestClassFile != null) NavigationUtil.NavigateTo(Solution, Model.TestClassFile);
-            base.SuccessfulFinish(pi);
+            return Solution.GetComponent<IPsiTransactions>().Execute("Create Tests", () =>
+            {
+                var primaryPsiFile = (ICSharpFile)Model.TestClassFile.GetPrimaryPsiFile().NotNull();
+                var className = pathsService.GetExpectedClassName(Model.TargetFilePath);
+
+                var targetProject = Model.TestClassFile.GetProject().NotNull();
+                var sourceProject = Model.SourceFile.GetProject().NotNull();
+
+                var psiFileBuilder = new PsiFileBuilder(primaryPsiFile);
+
+                if (Model.IncludeTestSetup)
+                {
+                    psiFileBuilder
+                        .AddUsingDirective("Atc.Test")
+                        .AddUsingDirective("FluentAssertions")
+                        .AddUsingDirective("Xunit");
+                }
+
+                psiFileBuilder
+                    .AddExpectedNamespace()
+                    .AddClass(className, AccessRights.PUBLIC)
+                    .WithMembers();
+
+                transactionCookie.AddProjectReference(targetProject, sourceProject);
+            });
         }
 
-        public override string Title
-        {
-            get { return "Create Tests"; }
-        }
+        public override string Title => "Create Tests";
 
-        public override string HelpKeyword
-        {
-            get { return "Refactorings__Create_Tests"; }
-        }
+        public override string HelpKeyword => "Refactorings__Create_Tests";
 
-        public override bool MightModifyManyDocuments
-        {
-            get { return true; }
-        }
+        public override bool MightModifyManyDocuments => true;
 
-        public override RefactoringActionGroup ActionGroup
-        {
-            get { return RefactoringActionGroup.Blessed; }
-        }
+        public override RefactoringActionGroup ActionGroup => RefactoringActionGroup.Blessed;
     }
 }

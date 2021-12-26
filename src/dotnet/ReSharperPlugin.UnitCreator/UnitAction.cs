@@ -42,7 +42,8 @@ namespace ReSharperPlugin.UnitCreator
                     RefactoringActionUtil.ExecuteRefactoring(
                         solution
                             .GetComponent<IActionManager>().DataContexts
-                            .CreateOnActiveControl(lifetimeDefinition.Lifetime), new CreateTestsWorkflow(solution));
+                            .CreateOnActiveControl(lifetimeDefinition.Lifetime), 
+                        new CreateTestsWorkflow(solution));
                 }
             };
         }

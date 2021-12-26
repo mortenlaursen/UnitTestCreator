@@ -28,7 +28,8 @@ namespace ReSharperPlugin.UnitCreator.CreateTests
 
         public override BeControl GetPageContent()
         {
-            return pageBuilder.TextBox(TargetFilePath, "N_ame:", x =>
+            return pageBuilder
+                .TextBox(TargetFilePath, "N_ame:", x =>
                 {
                     var solution = model.SourceFile.GetSolution();
 
