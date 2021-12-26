@@ -31,8 +31,6 @@ namespace ReSharperPlugin.UnitCreator.CreateTests
             return pageBuilder
                 .TextBox(TargetFilePath, "N_ame:", x =>
                 {
-                    var solution = model.SourceFile.GetSolution();
-
                     x.WithTextNotEmpty(Lifetime, null)
                         .WithAllowedExtensions(model.SourceFile.ExtensionWithDot(), Lifetime, null);
                     // .WithValidationRule(Lifetime, p => new FileAlreadyExistsRule(p, solution, model))

@@ -15,10 +15,10 @@ namespace ReSharperPlugin.UnitCreator.CreateTests
 
         public IDeclaration Declaration { get; set; }
         public IProjectFile SourceFile { get; set; }
-        public IProjectFolder DefaultTargetProject { get; set; }
+        // public IProjectFolder DefaultTargetProject { get; set; }
         public IProject TargetProject { get; set; }
         public bool IncludeTestSetup { get; set; }
-        public ProjectFileImpl SourceProject { get; set; }
+        public IProject SourceProject { get; set; }
 
         // public IList<IProjectFolder> SelectionScope { get; set; }
         // public Func<IProjectFile, bool> SuggestFilter{ get; set; }
